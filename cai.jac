@@ -17,11 +17,3 @@ walker talker {
         utterance = std.input("> ");
     take -->;
 }
-
-walker get_states {
-    has anchor path = [];
-    take -->;
-    with exit {
-        report path;
-    }
-}
