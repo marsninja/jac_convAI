@@ -12,9 +12,9 @@ graph basic_gph {
         spawn appt -[trans_intent(intent="create")]->
             node::state(name="Create an appoitnment");
         spawn appt -[trans_intent(intent="cancel")]->
-            node::state(name="Create an appoitnment");
+            node::state(name="Cancel an appoitnment");
         spawn appt -[trans_intent(intent="reschedule")]->
-            node::state(name="Create an appoitnment");
+            node::state(name="Reschedule an appoitnment");
 
         service = spawn conv_root -[trans_intent(intent="service info")]->
             node::hop_state(name="Services");

@@ -7,5 +7,21 @@ walker init {
     root {
         spawn here --> graph::basic_gph;
     }
+    spawn -->[0] walker::talker;
+}
+
+walker talker {
+    has utterance;
+    has use_cmd = true, path = [];
+    if(use_cmd and here.details['name'] != 'hop_state'):
+        utterance = std.input("> ");
     take -->;
+}
+
+walker get_states {
+    has anchor path = [];
+    take -->;
+    with exit {
+        report path;
+    }
 }

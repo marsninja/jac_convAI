@@ -6,8 +6,14 @@ node state {
     can speak with entry {
         std.out(response + " I'm current on "+name+" node");
     }
-    can listen with entry {
-        utterance = std.input("> ");
+    can listen with talker exit {
+        utterance = visitor.utterance;
+        visitor.path.l::append(&here);
+        std.out("I heard "+utterance+".");
+    }
+
+    can record_path with get_states entry {
+        visitor.path.l::append(&here);
     }
 }
 
