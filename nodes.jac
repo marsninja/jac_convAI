@@ -1,10 +1,10 @@
 node state {
     has name;
-    has reponse;
+    has response="I'm a silly bot.";
     has utterance;
 
     can speak with entry {
-        std.out(response);
+        std.out(response + " I'm current on "+name+" node");
     }
     can listen with entry {
         utterance = std.input("> ");
