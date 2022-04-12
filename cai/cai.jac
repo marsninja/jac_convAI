@@ -3,9 +3,6 @@ import {edge::{trans_ner, trans_intent, trans_qa}} with "./edges.jac";
 import {graph::basic_gph} with "./static_conv.jac";
 import {graph::faq_gph} with "./load_faq.jac";
 
-
-
-
 walker init {
     root {
         spawn here --> graph::basic_gph;
