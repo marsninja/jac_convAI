@@ -4,7 +4,7 @@ import {node::{state, hop_state}} with "./nodes.jac";
 graph basic_gph {
     has anchor conv_root;
     spawn {
-        conv_root = spawn node::state(name="root_state");
+        conv_root = spawn node::state(name="Conv Root");
 
         appt = spawn conv_root -[trans_intent(intent="appointment")]->
             node::hop_state(name="Appointments");

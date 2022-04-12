@@ -1,4 +1,5 @@
-import {graph::{basic_gph}} with "./fixture.jac";
+import {graph::basic_gph} with "./static_conv.jac";
+import {graph::faq_gph} with "./static_conv.jac";
 import {edge::{trans_ner, trans_intent, trans_qa}} with "./edges.jac";
 import {node::{state, hop_state}} with "./nodes.jac";
 
@@ -6,8 +7,11 @@ import {node::{state, hop_state}} with "./nodes.jac";
 walker init {
     root {
         spawn here --> graph::basic_gph;
+        spawn -->[0] -[trans_intent(intent="about chat bots")]-> graph::faq_gph;
     }
-    spawn -->[0] walker::talker;
+    with exit {
+        spawn -->[0] walker::talker;
+    }
 }
 
 walker talker {
