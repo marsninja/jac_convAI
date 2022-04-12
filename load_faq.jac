@@ -6,7 +6,7 @@ graph faq_gph {
     spawn {
         faq_root = spawn node::state(name="Faq Root");
 
-        answers=file.load_str('./faq_answers.jac').str::split('&&&')
+        answers = file.load_str('./faq_answers.txt').str::split('&&&');
 
         for i in answers:
             spawn faq_root -[trans_qa]-> node::state(response=i);

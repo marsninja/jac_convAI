@@ -1,12 +1,12 @@
 node state {
-    has name;
+    has name = rand.word();
     has response="I'm a silly bot.";
     has user_utter;
 
     can speak with entry {
         std.out(response + " I'm current on "+name+" node");
     }
-    
+
     can listen with talker exit {
         user_utter = visitor.utterance;
         visitor.path.l::append(&here);

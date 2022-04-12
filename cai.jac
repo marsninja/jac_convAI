@@ -1,5 +1,5 @@
 import {graph::basic_gph} with "./static_conv.jac";
-import {graph::faq_gph} with "./static_conv.jac";
+import {graph::faq_gph} with "./load_faq.jac";
 import {edge::{trans_ner, trans_intent, trans_qa}} with "./edges.jac";
 import {node::{state, hop_state}} with "./nodes.jac";
 
@@ -15,7 +15,7 @@ walker init {
 }
 
 walker talker {
-    has utterance;
+    has utterance="";
     has use_cmd = true, path = [];
     if(use_cmd and here.details['name'] != 'hop_state'):
         utterance = std.input("> ");
