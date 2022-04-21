@@ -1,0 +1,12 @@
+[
+    {
+        "test_name": "example test flow",
+        "flow": [
+            {
+                "query": "what's good yo",
+                "state": "hello",
+                "response_contains": "hello there!"
+            }
+        ]
+    }
+]
