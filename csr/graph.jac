@@ -16,21 +16,21 @@ graph main_graph {
         
         main_root = spawn node::state(
                                 title="Greeting", 
-                                message="Hi, welcome to V75. What would you like to build today?", 
-                                prompts=["website", "mobile app", "information system", "quit"]
+                                message="Hi, welcome to V75. How can we help you today?", 
+                                prompts=["website", "mobile app", "information system", "one page website", "five page website", "custom website", "quit"]
                             );
-
-        quit_node = spawn node::state(title="Quit", message="quitting...", prompts="");
+        
+        quit_node = spawn node::state(title="Quit", message="quitting...", prompts=[]);
 
         website = spawn main_root -[transition(intent="website")]-> node::state(
                                 title="Website",
                                 message="What kind of website would you like to build?",
-                                prompts=["one-pager", "5-page", "other", "back"]
+                                prompts=["one page wesbite", "five page website", "custom website", "back"]
                             );
 
         website -[transition(intent="back")]-> main_root;
         
-        one_pager = spawn website -[transition(intent="one-pager")]-> node::state(
+        one_pager = spawn website -[transition(intent="one page website")]-> node::state(
                         title="One Pager",
                         message="Tell us about the one pager you'd like to build",
                         prompts=["back"]
@@ -38,23 +38,21 @@ graph main_graph {
         
         one_pager -[transition(intent="back")]-> website;
 
-        five_pager = spawn website -[transition(intent="5-page")]-> node::state(
+        five_pager = spawn website -[transition(intent="five page website")]-> node::state(
                         title="5 Pager",
-                        message="Tell us about the 5 pager you'd like to build",
+                        message="Tell us about the five pager you'd like to build",
                         prompts=["back"]
                     );
 
         five_pager -[transition(intent="back")]-> website;
                 
-        other = spawn website -[transition(intent="other")]-> node::state(
+        other_website = spawn website -[transition(intent="custom website")]-> node::state(
                         title="Other",
                         message="Tell us about the custom website you'd like to build",
                         prompts=["back"]
                     );
         
-        other -[transition(intent="back")]-> website;
-
-        main_root -[transition(intent="quit")]-> quit_node;
+        other_website -[transition(intent="back")]-> website;
         
         mobile_app = spawn main_root -[transition(intent="mobile app")]-> node::state(
                         title="Mobile App",
@@ -67,6 +65,14 @@ graph main_graph {
                         message="Tell us about the information system you'd like to build",
                         prompts=["back"]
                     );   
+
+
+        main_root -[transition(intent="quit")]-> quit_node;
+        main_root -[transition(intent="one page website")]-> one_pager;
+        main_root -[transition(intent="five page website")]-> five_pager;
+        main_root -[transition(intent="custom website")]-> other_website;
+        main_root -[transition(intent="mobile app")]-> mobile_app;
+        main_root -[transition(intent="information system")]-> info_sys;
 
     }
 
