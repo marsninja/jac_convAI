@@ -1,68 +1,40 @@
-
 walker talker {
-    //has all_prompts = [];
     has utterance;
-    has root_state;
     can use.enc_question, use.enc_answer;
 
     state {
-
-        if(here.title == "Greeting"): root_state = here;
-
         std.out(here.message);
-    
+
         utterance = std.input("> ");
 
-        if(utterance == "quit"): disengage; #disengage if user types quit
+        if(utterance == "quit"): disengage;
 
         q_enc = use.enc_question(utterance);
         a_enc = use.enc_answer(here.prompts); # can take lists or single strings
 
-        a_scores={}; #stores a dictionary of prompts and their related scores based on utterance similarity
-        threshold = 0.15; #cutoff threshold value; scores below this will be ignored
+        a_scores = {}; #stores a dictionary of prompts and their related scores based on utterance similarity
+        cf_threshold = 0.1; #cutoff threshold value; scores below this will be ignored
         max_cf = 0; #max confidence factor score of the question among the encoded answers
-        qa_intent = ""; #the likely intent based on max_cf to use in transition
+        chosen_intent = ""; #holds the intent that scored the highest cf
 
-        for i=0 to i<(here.prompts).length by i += 1 {
+        for i=0 to i < (here.prompts).length by i += 1 {
+            
+            cf = vector.cosine_sim(q_enc, a_enc[i]); #confidence factor; the cosine_similarity score
 
-            cf = vector.cosine_sim(q_enc, a_enc[i]);
             a_scores[here.prompts[i]] = cf;
 
-            if(cf >= threshold && cf > max_cf) {
+            if(cf >= cf_threshold && max_cf < cf) {            
                 max_cf = cf;
-                qa_intent = here.prompts[i];
+                chosen_intent = here.prompts[i];
             }
-        } 
-
-        report {"utterance": utterance, "qa_intent": qa_intent, "scores": a_scores}; #report all this 
-        
-        take -[transition(intent == qa_intent)]-> node::state else {
-            #say I dont know..prompt again..
-            //std.out("Hmm.. not sure. Here are some options to help: ", here.prompts);
-            take root_state;
         }
 
-        //spawn -[transition(intent == qa_intent)]-> walker::talker;
-        //disengage;    
-        
-    }
-}
+        report {"utterance" : utterance, "chosen_intent": chosen_intent, "scores": a_scores};
 
-walker get_prompts {
-    
-    has anchor prompts = [];
-
-  
-    root, state {
-        states = --> node::state;
-
-        for n in states {
-           if( n.context.prompts ):
-                prompts += n.context.prompts;
+        take -[transition(intent == chosen_intent)]-> node::state else {
+             #say I dont know..prompt again..
+            std.out("Hmm.. not sure what you mean. Here are some options to help: ", here.prompts);
+            take here;
         }
-
-        root: take --> node::state;
-        state: disengage;
     }
-
 }
