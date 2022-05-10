@@ -7,4 +7,3 @@ import {*} with "./flair_ner.jac";
 import {*} with "./user.jac";
 import {*} with "./globals.jac";
 import {*} with "./tests.jac";
-import {*} with "./pdf_sum.jac";

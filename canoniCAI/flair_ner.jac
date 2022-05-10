@@ -43,10 +43,6 @@ node flair_ner {
     }
 
     can infer with infer_flair_ner entry {
-        # TODO: remove this
-        if (here.labels == []) {
-            here.labels = ["Fin_Corp"];
-        }
         report ent_ext.entity_detection(
             text=visitor.query,
             ner_labels=here.labels

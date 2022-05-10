@@ -214,7 +214,7 @@ walker train_and_eval_biencoder {
 }
 
 walker test_biencoder {
-    has test_file = "../data/master_clf_test.json";
+    has test_file = "data/clf_test.json";
     root: take --> node::cai_root;
     cai_root: take --> node::biencoder;
 }

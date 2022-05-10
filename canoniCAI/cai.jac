@@ -15,16 +15,16 @@ import {*} with "./globals.jac";
 walker talker {
     has question, user_id=1, start_new_dialogue = false, overwrite_intent = "", overwrite_entity = {};
     has hoping = true; # If the walker needs to make the transition
-    has starting_state;
-    has predicted_intent = "";
-    has intent_confidence = 0;
-    has extracted_entities = {};
-    has user_context = {};
-    has dialogue_context = {};
-    has answer;
+    has starting_state; # The starting dialogue state for this request
+    has predicted_intent = ""; # predicted intent of the incoming question
+    has intent_confidence = 0; # confidence of the intent prediction
+    has extracted_entities = {}; # entities extracted from the question
+    has user_context = {}; # contains user-specific profile data
+    has dialogue_context = {}; # context of the current ongoing dialogue session
+    has answer; # response 
     has state_for_continuing;
-    has destination_state;
-    has resp_payload = {};
+    has destination_state; # State for the walker to hop to after NLU
+    has resp_payload = {}; # rich response payload
 
     root {
         take --> node::cai_root;
@@ -44,7 +44,7 @@ walker talker {
     state, faq_state {
         if (hoping) {
             # By default, the walker only takes one hop
-            // # This can be overwritten in nodes abilities to sk the 
+            # This can be overwritten in nodes abilities to ask the 
             # walker to extra hop(s) if needed
             # e.g. for FAQ route, we take 2 hops instead of 1
             hoping = false;
