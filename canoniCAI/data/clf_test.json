@@ -1,0 +1,14 @@
+{
+  "hello": [
+    "hey",
+    "how is it going?"
+  ],
+  "goodbye": [
+    "later mate",
+    "see you later alligator"
+  ],
+  "weather": [
+    "hey is it going to rain tomorrow?",
+    "i sure hope this weekend is sunny"
+  ]
+}
