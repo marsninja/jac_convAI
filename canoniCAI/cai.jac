@@ -25,6 +25,7 @@ walker talker {
     has state_for_continuing;
     has destination_state; # State for the walker to hop to after NLU
     has resp_payload = {}; # rich response payload
+    has clf_to_use = ""; # Which classifier you want to use by setting node to either use_encoder or biencoder
 
     root {
         take --> node::cai_root;

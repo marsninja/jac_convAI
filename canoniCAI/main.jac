@@ -3,6 +3,7 @@ import {*} with "./edges.jac";
 import {*} with "./cai.jac";
 import {*} with "./fixture.jac";
 import {*} with "./biencoder.jac";
+import {*} with "./use_encoder.jac";
 import {*} with "./flair_ner.jac";
 import {*} with "./user.jac";
 import {*} with "./globals.jac";

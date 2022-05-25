@@ -100,12 +100,13 @@ node state {
 
     # AI abilities
     can use.encode, vector.cosine_sim;
-    can bi_enc.get_context_emb, bi_enc.get_candidate_emb;
+    can bi_enc.get_context_emb, bi_enc.get_candidate_emb, bi_enc.infer;
     can vector.dot_product, vector.softmax;
     can ent_ext.entity_detection;
     can extract_entity.extract_entity;
     can use.answer_encode;
     can use.question_encode;
+    can use.text_classify;
 
     # Node abilities triggered by the talker walker for convAI
     # listen -- listen to query question and analyze
@@ -123,16 +124,6 @@ node state {
     can plan with talker entry {
         if (visitor.hoping) {
             visitor.destination_state = -[transition(intent_label == visitor.predicted_intent)]->[0];
-            if (visitor.intent_confidence > global.intent_confidence_threshold) {
-                # VA path
-                visitor.destination_state = 
-                    -[transition(
-                        intent_label == visitor.predicted_intent or 
-                        entity in visitor.extracted_entities)]-> node::state;
-            } else {
-                # FAQ path
-                visitor.destination_state = *(global.faq_state);
-            }
         }
     }
 
@@ -178,22 +169,56 @@ node state {
         }
     }
 
-    can classify_intent with get_cand_intents activity {
+    can classify_intent {
         if (visitor.hoping) {
             if (visitor.overwrite_intent != "") {
                 visitor.predicted_intent = visitor.overwrite_intent;
                 visitor.intent_confidence = 1;
             } else {
-                question_emb = use.encode(visitor.question)[0];
-                for i in here.cand_intents {
-                    intent_emb = use.encode(i)[0];
-                    cos_score = vector.cosine_sim(question_emb, intent_emb);
-                    if (cos_score > visitor.intent_confidence) {
-                        visitor.intent_confidence = cos_score;
-                        visitor.predicted_intent = i;
+                if (visitor.clf_to_use == "biencoder") {
+                    ::collect_intents;
+                    # Use the model to perform inference
+                    # returns the list of context with the suitable candidates
+                    resp_data = bi_enc.infer(
+                        contexts=[visitor.query],
+                        candidates=here.cand_intents,
+                        context_type="text",
+                        candidate_type="text"
+                    );
+
+                    # Iterate through the candidate labels and their predicted scores
+                    max_score = 0;
+                    max_intent = "";
+                    pred=resp_data[0];
+
+                    for j=0 to j<pred["candidate"].length by j+=1 {
+                        if (pred["score"][j] > max_score){
+                            max_intent = pred["candidate"][j];
+                            max_score = pred["score"][j];
+                        }
                     }
+
+                    visitor.predicted_intent = max_intent;
+                    visitor.intent_confidence = max_score;
+
+                } else {
+                    # clf_to_use = "use_encoder"
+                    dataset = file.load_json("data/clf_labels.json");
+
+                    response = use.text_classify(visitor.query, dataset);
+                    visitor.predicted_intent = response['match'];
+
+                    max_value = null;
+
+                    for num in response['scores']:
+                        if(max_value == null or num > max_value): max_value = num;
+                        
+                    visitor.intent_confidence = max_value;
                 }
+                
             }
+
+            
         }
     }
 
@@ -240,5 +265,16 @@ node state {
                 visitor.answer = "The weather is going to be " + visitor.dialogue_context["weather"] + ".";
             }
         }
+    }
+}
+
+# Debug walkers
+walker get_cand_intents {
+    root: take --> node::cai_root;
+    cai_root: take --> node::state;
+
+    state{
+        here::collect_intents;
+        report here.cand_intents;
     }
 }
