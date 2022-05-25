@@ -180,7 +180,7 @@ node state {
                     # Use the model to perform inference
                     # returns the list of context with the suitable candidates
                     resp_data = bi_enc.infer(
-                        contexts=[visitor.query],
+                        contexts=[visitor.question],
                         candidates=here.cand_intents,
                         context_type="text",
                         candidate_type="text"
@@ -201,11 +201,11 @@ node state {
                     visitor.predicted_intent = max_intent;
                     visitor.intent_confidence = max_score;
 
-                } else {
+                } elif (visitor.clf_to_use == "use_encoder") {
                     # clf_to_use = "use_encoder"
                     dataset = file.load_json("data/clf_labels.json");
 
-                    response = use.text_classify(visitor.query, dataset);
+                    response = use.text_classify(visitor.question, dataset);
                     visitor.predicted_intent = response['match'];
 
                     max_value = null;
@@ -214,6 +214,9 @@ node state {
                         if(max_value == null or num > max_value): max_value = num;
                         
                     visitor.intent_confidence = max_value;
+                } else {
+                    report {"message": "missing/invalid data in clf_to_use for walker talker"};
+                    disengage;
                 }
                 
             }
@@ -265,16 +268,5 @@ node state {
                 visitor.answer = "The weather is going to be " + visitor.dialogue_context["weather"] + ".";
             }
         }
-    }
-}
-
-# Debug walkers
-walker get_cand_intents {
-    root: take --> node::cai_root;
-    cai_root: take --> node::state;
-
-    state{
-        here::collect_intents;
-        report here.cand_intents;
     }
 }
