@@ -50,6 +50,7 @@ walker init {
         "biencoder": "clf_model",
         "flair_ner": "ner_model"
     };
+
     root {
         here !--> -->;
         spawn here --> node::cai_root;
@@ -63,8 +64,11 @@ walker init {
 
         spawn here --> node::biencoder;
         spawn here --> node::flair_ner;
+        spawn here --> node::use_encoder;
+
         take --> node::biencoder;
         take --> node::flair_ner;
+        take --> node::use_encoder;
  
         take --> node::state;
         take --> node::user_dir;
