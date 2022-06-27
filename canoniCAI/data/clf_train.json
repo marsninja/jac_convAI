@@ -27,15 +27,11 @@
     "take care",
     "peace out"
   ],
-  "weather": [
-    "Is it hot or cold?",
-    "Is it sunny, should I take sunglasses?",
-    "Is it raining outside?",
-    "Should I take my umbrella?",
-    "What's the weather forecast?",
-    "What's the weather expected to be tomorrow?",
-    "What's the temperature?",
-    "How's the weather?",
-    "What's it like outside?"
+  "order": [
+    "i want a cheeseburder",
+    "I would like to order a burger",
+    "can i have a milkshake",
+    "i need a 3 piece chicken combo",
+    "can i have a family meal"
   ]
 }

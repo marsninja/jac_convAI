@@ -1,4 +1,6 @@
-node biencoder {
+import {*} with "./ai.jac";
+
+node biencoder:classifier {
     has pretrained = {
         "tinybert": "prajjwal1/bert-tiny",
         "distillbert": "distilbert-base-uncased"

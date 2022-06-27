@@ -1,14 +1,14 @@
 {
-  "hello": [
+  "soc": [
     "hey",
     "how is it going?"
   ],
-  "goodbye": [
+  "eoc": [
     "later mate",
     "see you later alligator"
   ],
-  "weather": [
-    "hey is it going to rain tomorrow?",
-    "i sure hope this weekend is sunny"
+  "order": [
+    "i want a chicken salad",
+    "can i order a milkshake"
   ]
 }
