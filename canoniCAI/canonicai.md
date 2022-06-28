@@ -111,3 +111,24 @@ init_user : it collects all the user data from the api
 - **Set_pretrained_model**: switch between models that was already created and saved
 - **Infer**: test out the model
 
+## How to build upon canonCAI for your conversational AI use cases
+
+I have build out a simple KFC application which I will be running you through. After running you through this application you should be able to understand how to build a simple conversation AI using canoniCAI.
+
+#### Step 1
+I've created 5 states for the KFC application. One for the start of conversation (soc), end of conversation (eoc), one that accepts order (order), order confirmation and order denial. You can reference it in the fixture.jac from line 35 to line 40.
+
+#### Step 2
+We then proceed to link each states to their corresponding states for example we linked the eoc, soc and order state to the conversation root state because a conversation can be initiated  by greeting the AI or directly by ordering a item from kfc or it can be ended just incase you had an emergency that pops up. The order confirmation and denial states are linked to the order state because when you order an item you will have to confirm or deny the item while the AI keep context of the item that asked for initially. You can reference this in the fixture.jac file from line 42 to line 58.
+
+#### Step 3
+This stage we are dealing with the business logic. In the nodes.jac file from line 291 - 306. This is how far you will put your business logics when it comes in terms of slot data extracted. You can pull data from the net and manipulate slots or just add functionality that is convienent to you. But in this KFC example we didn't need anything extra.
+
+#### Step 4
+In this stage we will be adding responses based on each state. In nodes.jac from line 308. This is how far we add the responses for this basic applcation we created.
+
+#### Step 5
+In this example we used the use qa model for classification so no need for us to add training data for this basic example for classification, we just have to go to the clf label json file in the data folder and add the labels, this should correspond to the global.jac file, however we had to train the AI for entity extraction meaning allowing the AI to extract items from the user input. how we did that is as follows, In the data folder flair_ner.json file we added user input that people would usually ask and how far the items are located using the start index and end index of the slot, the entity value is the actual value you want to be extracted and the entity type is the type of slot you want to create. In this example we created a slot named "item" but you can create multiple slot as you wish for one user input. Now you can go ahead and run the train flair ner walker and it will work.
+
+##### Step 6
+In this stage you have completed building your first conversational AI. Now you can go ahead and test how good it is and tweak what's necessary. 
