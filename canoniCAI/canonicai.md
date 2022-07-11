@@ -2,11 +2,11 @@
 
 ##### Table of Contents  
 - [What is a competency](#what-is-a-competency)
-- [What are the components to make up a competency](#what-is-the-components-to-make-up-a-competency)
-- [Build the skeleton for your new competency](#step-1)
-- [How to write custom business logics for canonicai](#step-2)
-- [How to edit or create responses from each state](#step-3)
-- [How to test competency](#step-4)
+- [What are the components to make up a competency](#what-are-the-components-to-make-up-a-competency)
+- [Build the skeleton for your new competency](#step-1-build-the-skeleton-for-your-new-competency)
+- [How to write custom business logics for canonicai](#step-2-how-to-write-custom-business-logics-for-canoniCAI)
+- [How to edit or create responses from each state](#step-3-how-to-edit-or-create-responses-from-each-state)
+- [How to test competency](#step-4-how-to-test-competency)
 
 # What is a competency
 A competency is a specialized piece of an AI model program that comes together to solve a problem.
