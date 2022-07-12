@@ -59,7 +59,13 @@ This state intakes a link from the user which is then read to scrape data from t
 
 It’s a centralized area for all types of AI models that does specific functions such as NER, Classification, etc. Which can be accessed by the conversational states to perform certain actions.
 
+Here I will explain some models that we used in the CanoniCAI repo and they are as follows:
 
+```use-qa```: This is used for text classification that requires no training data.
+
+```bi-encoder```: We use this for text classification for our programs. However the difference between the use-qa and this jaseci-kit tool is that this one requires the user to train data for classification. Why use this over the use-qa, sometimes you may run into cases where you want to classify complex groups of text, the use-qa in this case may probably fail and this is when this will come into action.
+
+```flair-ner```: this is used for text entity extraction. For example if I ask a bot to order me 3pc chicken combo. It should extract 3 as the quantity and chicken combo as the item and this is what it means by entity extraction.
 
 
 ## How are they connected?
