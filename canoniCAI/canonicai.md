@@ -138,8 +138,8 @@ The steps are as follows:
 * registering the sentinel: ``` sentinel register -set_active true -mode ir main.jir ```
 * delete any graph if exists: ``` graph delete active:graph ```
 * create the graph: ``` graph create -set_active true ```
-* run init walker: ``` walker init ```
-* testing the application by running talker: ``` walker talker -ctx "{\"question\": \"can you check what I have ordered so far.\"}" ```
+* run init walker: ``` walker run init ```
+* testing the application by running talker: ``` walker run talker -ctx "{\"question\": \"can you check what I have ordered so far.\"}" ```
 
 Let's continue with the other method of testing which involves writing a test.
 
@@ -164,3 +164,145 @@ with graph::empty by walker::init {
         assert (res[-1]["response"] == "In your cart you have ordered 3pc chicken combo");
 }
 ```
+# How to load model
+We will load model in canonicai using fast api
+
+First we will explore how to load model through jaseci console in canonicai, We will try to load the bi-encoder model because that is vastly used in the modern AI world.
+
+We have to go to the console and follow the steps below: 
+* run jaseci console: ``` jsctl -m ```
+* load bi-encoder actions: ``` actions load module jaseci_kit.bi_enc ```
+* 
+* go to the docs website
+* click ```/load_model/```
+* click try it out
+* replace string with the name of model for key model path and click execute
+
+That's how you load a model
+
+# How to save model
+We will save model in canonicai using fast api
+
+First we will explore how to save model through jaseci console in canonicai, We will try to load the bi-encoder model because that is vastly used in the modern AI world.
+
+We have to go to the console and follow the steps below: 
+* run jaseci console: ``` jsctl -m ```
+* load bi-encoder actions: ``` actions load module jaseci_kit.bi_enc ```
+* 
+* go to the docs website
+* click ```/save_model/```
+* click try it out
+* replace string with the name of model for key model path and click execute
+
+# How to add or update training data to CanoniCAI
+We will be adding training data to bi-encoder model in CanoniCAI
+
+First we have to navigate to ```/data/clf_train.json``` if the file does not exist create one.
+
+ADD: ``` "check order": ["can you check my order","can i have a look at my order"] ```
+
+``` NOTE: the key must be the same as in the global label in the globals.jac file. This is what helps the classifier to train. ```
+
+```
+{
+  "check order": ["can you check my order","can i have a look at my order"],
+  "hello": [
+    "hi how's your day so far",
+    "how's it going",
+    "how are you",
+    "whats up",
+    "what's going on",
+    "what's good",
+    "how goes it",
+    "i have had a crazy day, how's yours",
+    "what is the latest",
+    "what's up with you",
+    "what is going on with you kev",
+    "how are you doing today man",
+    "good morning",
+    "good day to you!",
+    "what's cracking",
+    "what's popping yall"
+  ],
+  "goodbye": [
+    "bye bye",
+    "see you later",
+    "see you soon",
+    "talk to you later",
+    "gotta go",
+    "i am off",
+    "take care",
+    "peace out"
+  ],
+  "order": [
+    "i want a cheeseburder",
+    "I would like to order a burger",
+    "can i have a milkshake",
+    "i need a 3 piece chicken combo",
+    "can i have a family meal"
+  ]
+}
+```
+
+# How to train models in CanoniCAI
+
+There are two ways to train the bi-encoder model:
+* walkers
+* fastapi
+
+Next step we have to train the model. Here are the steps as follows:
+* run jaseci console: ``` jsctl -m ```
+* load bi-encoder actions: ``` actions load module jaseci_kit.bi_enc ```
+* 
+* go to the docs website
+* click ```/train/```
+* click try it out
+* copy everything in ```/data/clf_train.json```
+* paste all the data you copied to the dataset key as shown below
+```
+{
+  "dataset": {
+  "goodbye": [
+    "bye bye",
+    "see you later",
+    "see you soon",
+    "talk to you later",
+    "gotta go",
+    "i am off",
+    "take care",
+    "peace out"
+  ]
+  },
+  "from_scratch": false,
+  "training_parameters": {}
+}
+```
+* change key value of ```from_scratch``` to true
+```
+{
+  "dataset": {},
+  "from_scratch": true,
+  "training_parameters": {}
+}
+```
+* change key value of ```training_parameters ``` to suit your needs, example shown below
+```
+{
+  "dataset": {},
+  "from_scratch": false,
+  "training_parameters": { "num_train_epochs": 50 }
+}
+```
+* click execute
+
+Thats how you add and train the model using fastapi. How let's move on to how to train the model using walkers from CanoniCAI
+
+The steps to doing this is a follows:
+* run jaseci console: ``` jsctl -m ```
+* load bi-encoder actions: ``` actions load module jaseci_kit.bi_enc ```
+* builing the application using:  ``` jac build main.jac ```
+* registering the sentinel: ``` sentinel register -set_active true -mode ir main.jir ```
+* delete any graph if exists: ``` graph delete active:graph ```
+* create the graph: ``` graph create -set_active true ```
+* run init walker: ``` walker run init ```
+* run train_biencoder walker: ``` walker run train_biencoder ```
