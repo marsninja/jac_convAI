@@ -51,7 +51,7 @@ node flair_ner {
 }
 
 walker train_flair_ner {
-    has train_file = "data/flair_ner_train.json";
+    has train_file = "data/flair_ner.json";
     has from_scratch = false;
     has num_train_epochs = 20;
     has batch_size = 8;

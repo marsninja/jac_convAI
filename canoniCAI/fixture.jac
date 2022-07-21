@@ -32,18 +32,36 @@ graph conv_graph {
         default_faq_answer_state = spawn node::faq_answer_state(answer="Sorry I can't handle that just yet.");
         faq_state -[faq_answer]-> default_faq_answer_state;
 
-        state_hello = spawn node::state(name="hello");
-        state_goodbye = spawn node::state(name="goodbye");
-        state_weather = spawn node::state(name="weather");
+        state_soc = spawn node::state(name="soc");
+        state_eoc = spawn node::state(name="eoc");
 
-        conv_root -[transition(intent_label = global.hello_label)]-> state_hello;
-        conv_root -[transition(intent_label = global.goodbye_label)]-> state_goodbye;
-        conv_root -[transition(intent_label = global.weather_label)]-> state_weather;
+        state_order = spawn node::state(name="order");
+        state_order_confirmation = spawn node::state(name="order_confirmation");
+        state_order_denial = spawn node::state(name="order_denial");
+
+        global_states = [
+            [state_soc, global.soc_label],
+            [state_eoc, global.eoc_label],
+            [state_order, global.order_label]
+        ];
+
+
+        conv_root -[transition(intent_label = global.soc_label)]-> state_soc;
+        conv_root -[transition(intent_label = global.eoc_label)]-> state_eoc;
+        conv_root -[transition(intent_label = global.order_label)]-> state_order;
+
+        state_order -[transition(intent_label = global.yes_label)]-> state_order_confirmation;
+        state_order -[transition(intent_label = global.no_label)]-> state_order_denial;
+
+        for gstate in global_states {
+            state_order -[transition(intent_label = gstate[1])]-> gstate[0];
+        }
+
     }
 }
 
 walker init {
-    has prod = false, load_model = false;
+    has prod = true, load_model = false, load_actions = true;
 
     # Name of models to load and use for this CAI
     has models_to_load = {
@@ -58,6 +76,23 @@ walker init {
     }
     cai_root {
         global.cai_root = here.info["jid"];
+
+        if(load_actions){
+            if(prod){
+                std.actload_remote("https://use-enc.jaseci.org/");
+                std.actload_remote("https://use-qa.jaseci.org/");
+                std.actload_remote("https://summarization.jaseci.org");
+                std.actload_remote("https://tfm-ner.jaseci.org");
+                std.actload_remote("https://flair-ner.jaseci.org");
+                std.actload_remote("https://bi-enc-internal.jaseci.org");
+
+            }else {
+                std.actload_local("../../jaseci_kit/jaseci_kit/use_enc/use_enc.py");
+                std.actload_local("../../jaseci_kit/jaseci_kit/entity_extraction/entity_extraction.py");
+                std.actload_local("../../jaseci_kit/jaseci_kit/use_qa/use_qa.py");
+                // std.actload_local("jskit-hlp/poa/hlp_poa.py");
+            }
+        }
 
         spawn here -[conv_graph]-> graph::conv_graph;
         spawn here --> node::user_dir;

@@ -61,6 +61,11 @@ walker talker {
    }
 }
 
+walker ask {
+    has question;
+    spawn *(global.faq_state) walker::talker(question=question);
+}
+
 walker read {
     has source_url;
     root: take --> node::cai_root;

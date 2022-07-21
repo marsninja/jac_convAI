@@ -60,6 +60,14 @@ node faq_state {
         here !-[faq_answer]-> -[faq_answer]->;
         spawn here -[faq_answer]-> node::faq_answer_state(answer="Sorry I can't handle that just yet");
     }
+
+    can log with talker exit {
+        if(here.name != "conv_root_state"){
+            if(visitor.answer){
+                file.append_str('result.txt', "QUESTION: " + visitor.question + " INTENT: " + visitor.predicted_intent + " CONFIDENCE: " + visitor.intent_confidence.str + " EXTRACTED ENTITIES: " + visitor.extracted_entities.str + " RESPONSE: " + visitor.answer + " STATE: " + here.name + "\n");
+            }
+        }
+    }
 }
 
 # FAQ answer state
@@ -103,7 +111,7 @@ node state {
     can bi_enc.get_context_emb, bi_enc.get_candidate_emb, bi_enc.infer;
     can vector.dot_product, vector.softmax;
     can ent_ext.entity_detection;
-    can extract_entity.extract_entity;
+    can ent_ext.entity_detection;
     can use.answer_encode;
     can use.question_encode;
     can use.text_classify;
@@ -218,6 +226,40 @@ node state {
                     report {"message": "missing/invalid data in clf_to_use for walker talker"};
                     disengage;
                 }
+
+                # for follow ups
+                if (global.yes_label in here.cand_intents and global.no_label in here.cand_intents) {
+                        # try use qa first
+                        yes_prompt = "Yes";
+                        no_prompt = "No";
+                        q_emb = use.encode(visitor.question)[0];
+                        yes_emb = use.encode(yes_prompt)[0];
+                        no_emb = use.encode(no_prompt)[0];
+                        yes_cos = vector.cosine_sim(q_emb, yes_emb);
+                        no_cos = vector.cosine_sim(q_emb, no_emb);
+                        max_score = 0;
+                        pred_label = "";
+                        if (yes_cos > no_cos) {
+                            pred_label = global.yes_label;
+                            max_score = yes_cos;
+                            max_diff = (yes_cos - no_cos)/yes_cos;
+                        } else {
+                            pred_label = global.no_label;
+                            max_score = no_cos;
+                            max_diff = (no_cos - yes_cos)/no_cos;
+                        }
+                        if (max_score > 0.1) {
+                            visitor.predicted_intent = pred_label;
+                            visitor.intent_confidence = 1.0;
+                        } else {
+                            here.cand_intents = [];
+                            for i in -[transition]->.edge {
+                                if (i.intent_label not in [global.yes_label, global.no_label]){
+                                    here.cand_intents.l::append(i.intent_label);
+                                }
+                            }
+                        }
+                    }
                 
             }
 
@@ -229,13 +271,14 @@ node state {
         if (visitor.overwrite_entity != {}) {
             visitor.extracted_entities = visitor.overwrite_entity;
         } else {
-            entity_result = extract_entity.extract_entity(
-                text=visitor.question
+            entity_result = ent_ext.entity_detection(
+                text=visitor.question, ner_labels=['item']
             );
-            for ent in entity_result {
-                if (ent["score"] > global.entity_confidence_threshold){
-                    entity_label = ent["entity"];
-                    entity_text = ent["text"];
+
+            for ent in entity_result['entities'] {
+                if (ent["conf_score"] > global.entity_confidence_threshold){
+                    entity_label = ent["entity_value"];
+                    entity_text = ent["entity_text"];
                     if (entity_label not in visitor.extracted_entities) {
                         visitor.extracted_entities[entity_label] = [];
                     }
@@ -247,25 +290,41 @@ node state {
 
     can business_logic {
         if (!visitor.hoping) {
-            if (here.name == "hello") {
-                visitor.dialogue_context["talking"] = true;
-            } elif (here.name == "goodbye") {
-                visitor.dialogue_context["talking"] = false;
-            } elif (here.name == "weather") {
-                # Call 3rd APIs to fetch weather info
-                visitor.dialogue_context["weather"] = "sunny";
+            visitor.dialogue_context.dict::update(visitor.extracted_entities);
+            if ("item" in visitor.extracted_entities) {
+                visitor.dialogue_context["item"] = visitor.extracted_entities["item"];
             }
+            // if (here.name == "hello") {
+            //     visitor.dialogue_context["talking"] = true;
+            // } elif (here.name == "goodbye") {
+            //     visitor.dialogue_context["talking"] = false;
+            // } elif (here.name == "weather") {
+            //     # Call 3rd APIs to fetch weather info
+            //     visitor.dialogue_context["weather"] = "sunny";
+            // }
         }
     }
 
     can gen_response {
         if (!visitor.hoping) {
-            if (here.name == "hello") {
-                visitor.answer = "hello there!";
-            } elif (here.name == "goodbye") {
-                visitor.answer = "see ya later!";
-            } elif (here.name == "weather") {
-                visitor.answer = "The weather is going to be " + visitor.dialogue_context["weather"] + ".";
+            if (here.name == "soc") {
+                visitor.answer = "Hello there, Welcome to KFC!";
+            } elif (here.name == "soc") {
+                visitor.answer = "see ya later, have an enjoyable rest of the day!";
+            } elif (here.name == "order") {
+                items = " ";
+
+                for item in visitor.dialogue_context["item"]{
+                    items = items + item;
+                }
+
+                visitor.answer = "Okay so you want a " + items.str + ". Would you still like to order the item?";
+            } elif (here.name == "order_confirmation") {
+                visitor.answer = "Thank you for ordering with us";
+            } elif (here.name == "order_denial") {
+                visitor.answer = "No problem, If there anything I can help with feel free to ask";
+            } elif (here.name == "eoc") {
+                visitor.answer = "Bye thank you for visiting KFC, hope we can see you again next time.";
             }
         }
     }

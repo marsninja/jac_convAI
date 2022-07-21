@@ -1,7 +1,9 @@
-node use_encoder {
+import {*} with "./ai.jac";
+
+node use_encoder:classifier {
     can use.text_classify;
 
-    can classify with infer_use_encoder entry {
+    can infer with infer_use_encoder entry {
         dataset = file.load_json("data/clf_labels.json");
 
         response = use.text_classify(visitor.query, dataset);
